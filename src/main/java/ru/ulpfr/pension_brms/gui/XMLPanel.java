@@ -66,29 +66,11 @@ public class XMLPanel extends JPanel {
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fch.getSelectedFile();
 					txtField.setText(selectedFile.getAbsolutePath());
-					
 					//загоняем выбранный файл в менеджер обработки вxодныx данныx
 					if(InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected())) {
 						updateStatus("файл успешно обработан");
 					} else
 						updateStatus("не удалось обработать файл");
-					/*try {
-						FileReader fr = new FileReader(selectedFile);
-						Scanner scan = new Scanner(fr);
-						int i = 1;
-				        while (scan.hasNextLine()) {
-				            System.out.println(i + " : " + scan.nextLine());
-				            i++;
-				        }
-				        scan.close();
-						fr.close();
-						updateStatus("файл успешно обработан");
-					} catch (Exception error) {
-						updateStatus("не удалось обработать файл");
-						error.printStackTrace();
-					} finally {
-						btn.setEnabled(true);
-					}*/
 					
 				}
 				btn.setEnabled(true);
