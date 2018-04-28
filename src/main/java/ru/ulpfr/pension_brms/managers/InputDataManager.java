@@ -5,32 +5,33 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonStreamParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ru.ulpfr.pension_brms.gui.MainWindow;
+import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
+import ru.ulpfr.pension_brms.model.Constant;
+import ru.ulpfr.pension_brms.model.Constants;
 import ru.ulpfr.pension_brms.model.InputVariable;
+import ru.ulpfr.pension_brms.model.XmlBlock;
+import ru.ulpfr.pension_brms.utils.CSVReader;
 import ru.ulpfr.pension_brms.utils.XmlFileReader;
 
 public class InputDataManager {
 	/**
 	 * Класс для манипуляций всеми вxодными данными
 	 */
-	
-	private String var_settings;
-	private List<Object> input_xml;
 	private XmlFileReader xmlFR;
-	
 	private static InputDataManager instance;
+	
+	private List<XmlBlock> xml_vars; //параметры из загруженной XML
+	private List<InputVariable> json_vars; //параметры из input_vars.json
+	
+	public enum READER_STATUS { SUCCESS, ERROR_SINTAX, INVALID_DATA, INVALID_TAG_STRUCTURE}
 	
 	public InputDataManager() {
 		xmlFR = new XmlFileReader();
@@ -43,29 +44,38 @@ public class InputDataManager {
 		return instance;
 	}
 	
-	public Boolean parseXmlFile(File fl , Boolean validate) {
+	//Доработать!!!!!!!
+	public READER_STATUS parseXmlFile(File fl , Boolean validate_xml) {
 		try {
-			input_xml = xmlFR.readFromFile(fl);
-			if (input_xml != null) {
-				return true;
+			xml_vars = xmlFR.readFromFile(fl);
+			if (xml_vars != null) {
+					if(validate_xml) {
+						List<String> errors = ValidationManager.getInstance().validateXML(xml_vars, json_vars);
+						if(errors.size() == 0)
+							return READER_STATUS.SUCCESS;
+						MainWindow.getInstance().output(errors, MESSAGE_TYPE.ERROR);
+						return READER_STATUS.INVALID_DATA;
+					} else
+					return READER_STATUS.SUCCESS;
 			} else
-				return false;
+				return READER_STATUS.INVALID_TAG_STRUCTURE;
 		} catch (Exception e) {
-			return false;
+			e.printStackTrace();
+			return READER_STATUS.ERROR_SINTAX;
 		}	
 	}
 	
 	public void parseInputVarsJSON() {
-		
 		String path = this.getClass().getClassLoader().getResource("configs/input_vars.json").getFile();
 		Gson gson = new Gson();
 		BufferedReader br;
 		try {
 			br = new BufferedReader(new FileReader(path));
-			List<InputVariable> variables = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
-			for (InputVariable var : variables) {
+			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
+			for (InputVariable var : json_vars) {
 				System.out.print(var.getName()+'\n');
-			}
+			} 
+			MainWindow.getInstance().output("Файл nput_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (JsonIOException e) {
@@ -73,6 +83,20 @@ public class InputDataManager {
 	    } catch (JsonSyntaxException e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	public void parseConstantsCSV () {
+		try {
+			CSVReader reader = new CSVReader("configs/constants.csv");
+			ArrayList<List<String>> dataTable = reader.getLoadedData();
+			for (List<String> line : dataTable) {
+				Constants.addConstant(new Constant(line.get(0), line.get(1), line.get(2)));
+			}
+			MainWindow.getInstance().output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
+		} catch (Exception e) {
+			MainWindow.getInstance().output("Файл constants.csv не загружен. "+e.getMessage(), MESSAGE_TYPE.ERROR);
+		}
+		
 	}
 
 }

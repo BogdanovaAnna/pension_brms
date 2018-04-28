@@ -26,14 +26,13 @@ public class OutputPanel extends JPanel {
 	private static final long serialVersionUID = 1750392838690660219L;
 	private JTextPane textArea;	
 	private JButton clearBtn;
-	enum MESSAGE_TYPE { INFO, ERROR, SYSTEM}
+	public static enum MESSAGE_TYPE { INFO, ERROR, SYSTEM}
 
 	public OutputPanel() {
 		setLayout(new FlowLayout(FlowLayout.RIGHT));
 		setPreferredSize(new Dimension(460, 500));
 		setupTextPane();
 		setupClearBtn();
-		appendMsg("Hello World!");
 	}
 	
 	private void setupTextPane() {

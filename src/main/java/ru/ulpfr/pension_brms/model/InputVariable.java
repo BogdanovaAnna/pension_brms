@@ -13,7 +13,7 @@ public class InputVariable implements Serializable {
     private String type;
     private String desc;
     private String format;
-    private ArrayList<Object> values;
+    private ArrayList<String> values;
     private ArrayList<String> values_desc;
     private Object default_value;
     
@@ -65,11 +65,11 @@ public class InputVariable implements Serializable {
 		this.format = value;
 	}
 	
-	public ArrayList<Object> getValues() {
+	public ArrayList<String> getValues() {
 		return values;
 	}
 
-	public void setValues(ArrayList<Object> arr) {
+	public void setValues(ArrayList<String> arr) {
 		this.values = arr;
 	}
 	

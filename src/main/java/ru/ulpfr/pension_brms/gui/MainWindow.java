@@ -4,8 +4,12 @@ import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
+
+import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 
 public class MainWindow extends JFrame {
 
@@ -43,6 +47,16 @@ public class MainWindow extends JFrame {
 		getContentPane().remove(splitLayout);
 	}
 	
+	public void output(String msg, MESSAGE_TYPE type) {
+		outputPanel.appendMsg(msg, type);
+	}
+	
+	public void output(List<String> list, MESSAGE_TYPE type) {
+		for (String error : list) {
+			output(error, type);
+		}
+	}
+	
 	
 	public static synchronized MainWindow getInstance() {
 		if (instance == null)
@@ -61,5 +75,4 @@ public class MainWindow extends JFrame {
 	            }
 		});
 	}
-
 }

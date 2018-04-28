@@ -19,6 +19,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import ru.ulpfr.pension_brms.managers.InputDataManager;
+import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
 
 public class XMLPanel extends JPanel {
 	
@@ -66,11 +67,12 @@ public class XMLPanel extends JPanel {
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fch.getSelectedFile();
 					txtField.setText(selectedFile.getAbsolutePath());
-					//загоняем выбранный файл в менеджер обработки вxодныx данныx
-					if(InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected())) {
-						updateStatus("файл успешно обработан");
-					} else
-						updateStatus("не удалось обработать файл");
+					
+					READER_STATUS status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
+					updateStatus(status);
+					if (status == READER_STATUS.SUCCESS) {
+						//InputDataManager.getInstance().execute()
+					}
 					
 				}
 				btn.setEnabled(true);
@@ -124,6 +126,23 @@ public class XMLPanel extends JPanel {
 		if( statusLabel != null ) {
 			statusLabel.setText("Статус: "+ str);
 		}
+	}
+	public void updateStatus(READER_STATUS status) {
+		String str = "файл успешно загружен!";
+		switch (status) {
+		case ERROR_SINTAX:
+			str = "не выполнено. Присутствуют ошибки синтаксиса в файле";
+			break;
+		case INVALID_DATA:
+			str = "не выполнено. Данные в xml не прошли валидацию";
+			break;
+		case INVALID_TAG_STRUCTURE:
+			str = "не выполнено. В структуре xml нет блока clients/client";
+			break;
+		default:
+			break;
+		}
+		updateStatus(str);
 	}
 	
 	public void reset() {

@@ -9,7 +9,7 @@
     {
         "name": "D_Rogd",
         "type": "date",
-        "format":"dd/mm/yyyy",
+        "format":"dd.mm.yyyy",
         "desc":"Дата рождения (на основе которой определяеся текущий возраст)"
     },
     {
