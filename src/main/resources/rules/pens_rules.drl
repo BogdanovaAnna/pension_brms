@@ -1,7 +1,6 @@
 
 package ru.ulpfr.pension_brms;
 
-//list any import classes here.
 import ru.ulpfr.pension_brms.gui.MainWindow;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 import ru.ulpfr.pension_brms.model.Client;
@@ -15,10 +14,6 @@ import ru.ulpfr.pension_brms.model.Right.RIGHT_TYPES;
 import ru.ulpfr.pension_brms.model.Constants;
 import ru.ulpfr.pension_brms.model.RightError;
 import ru.ulpfr.pension_brms.model.RightError.ERROR_TYPES;
-
-//declare any global variables here
-
-
 
 
 rule "1. Право на страховую пенсию имеют граждане Российской Федерации"
@@ -95,9 +90,7 @@ rule "7. Отменить страxовой пенсию, если не удов
          modify($p) {
          	setStatus(PENS_STATUS.REJECTED),
          	setAmount(0F)
-         };
-         
-         MainWindow.getInstance().output("Размер пенсии равен ="+$p.getAmount());        
+         };      
 end
 
 rule "8. Отказ в страxовой пенсии по старости не гражданам РФ"
@@ -150,7 +143,7 @@ rule "12. Вывод ошибок при назначении страxовой 
         Client( $id:id)
         $e: RightError( clientId == $id, errorCode == ERROR_TYPES.PENS_AGE)
     then
-    	MainWindow.getInstance().output("Отказ: "+$e.getErrorMessage());
+    	MainWindow.getInstance().output("Отказ для гражданина ["+$id+"]: "+$e.getErrorMessage());
          
 end
 
@@ -159,7 +152,7 @@ rule "13. Вывод cообщения об успешном назначенн�
         Client( $id:id)
         $p: Pension( clientId == $id, status == PENS_STATUS.ASSIGNED )
     then
-    	MainWindow.getInstance().output("Гражданину положена страxовая пенсия по старости!");
-        MainWindow.getInstance().output("Размер пенсии равен ="+$p.getAmount());
+    	MainWindow.getInstance().output("Гражданину ["+$id+"] положена страxовая пенсия по старости!");
+        MainWindow.getInstance().output("Размер пенсии равен = "+$p.getAmount());
          
 end
