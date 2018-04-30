@@ -22,6 +22,25 @@ public class Constants {
 
 	}
 	
+	public static String getConstantValue(String name) {
+		if(constants != null) {
+			for (Constant cnst : constants) {
+				if(cnst.getName().equals(name))
+					return cnst.getValue().toString();
+			}
+		}
+		return null;
+	}
+	
+	public static Long getConstantNumValue(String name) {
+		String value = getConstantValue(name);
+		try {
+			return Long.valueOf(value);
+		} catch (Exception e) {
+			return 0L;
+		}
+	}
+	
 	public static List<Constant>  getConstants() {
 			return constants;
 	}

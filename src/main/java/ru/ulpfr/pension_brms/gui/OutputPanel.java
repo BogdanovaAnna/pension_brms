@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,7 +28,7 @@ public class OutputPanel extends JPanel {
 	private static final long serialVersionUID = 1750392838690660219L;
 	private JTextPane textArea;	
 	private JButton clearBtn;
-	public static enum MESSAGE_TYPE { INFO, ERROR, SYSTEM}
+	public static enum MESSAGE_TYPE { INFO, ERROR, SYSTEM, RULES}
 
 	public OutputPanel() {
 		setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -39,6 +41,17 @@ public class OutputPanel extends JPanel {
 		textArea = new JTextPane();
 		textArea.setBorder(new EmptyBorder(new Insets(10, 10, 10, 10)));
 		textArea.setPreferredSize(new Dimension(445, 445));
+		textArea.addFocusListener(new FocusListener() {		
+			@Override
+			public void focusLost(FocusEvent e) {
+				textArea.setEditable(true);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
+				textArea.setEditable(false);
+			}
+		});
+		
 		JScrollPane scrollPane = new JScrollPane(textArea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setColumnHeaderView(new JLabel("Окно вывода результатов обработки данныx"));
 		add(scrollPane);
@@ -67,7 +80,7 @@ public class OutputPanel extends JPanel {
 	public void appendMsg(String msg, MESSAGE_TYPE type) {
 		Color _color;
 		switch (type) {
-		case INFO:
+		case RULES:
 			_color = new Color(0,155,0);
 			break;
 		case SYSTEM:

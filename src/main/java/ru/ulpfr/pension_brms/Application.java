@@ -5,6 +5,8 @@ import ru.ulpfr.pension_brms.managers.InputDataManager;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.BasicConfigurator;
+
 public class Application {
 
 	public static void main(String[] args) {
@@ -17,6 +19,8 @@ public class Application {
 				//Инициируем конфигурационные файлы приложения
 				InputDataManager.getInstance().parseInputVarsJSON();
 				InputDataManager.getInstance().parseConstantsCSV();
+				
+				BasicConfigurator.configure();
 				
 				// создаём и отображаем главное окно приложения
 				MainWindow window = MainWindow.getInstance();

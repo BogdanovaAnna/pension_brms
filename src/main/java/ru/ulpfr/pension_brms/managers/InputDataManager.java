@@ -72,10 +72,7 @@ public class InputDataManager {
 		try {
 			br = new BufferedReader(new FileReader(path));
 			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
-			for (InputVariable var : json_vars) {
-				System.out.print(var.getName()+'\n');
-			} 
-			MainWindow.getInstance().output("Файл nput_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
+			MainWindow.getInstance().output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (JsonIOException e) {
@@ -90,13 +87,28 @@ public class InputDataManager {
 			CSVReader reader = new CSVReader("configs/constants.csv");
 			ArrayList<List<String>> dataTable = reader.getLoadedData();
 			for (List<String> line : dataTable) {
-				Constants.addConstant(new Constant(line.get(0), line.get(1), line.get(2)));
+				String desc = (line.size() < 3) ? "": line.get(2);		
+				Constants.addConstant(new Constant(line.get(0), line.get(1), desc));
 			}
 			MainWindow.getInstance().output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (Exception e) {
 			MainWindow.getInstance().output("Файл constants.csv не загружен. "+e.getMessage(), MESSAGE_TYPE.ERROR);
 		}
 		
+	}
+	
+	public InputVariable getInputVariableByName (String name) {
+		if(json_vars != null && json_vars.size() > 0) {
+			for (InputVariable variable : json_vars) {
+				if(variable.getName().equals(name))
+					return variable;
+			}
+		}
+		return null;
+	}
+	
+	public List<XmlBlock> getXmlClients() {
+		return xml_vars;
 	}
 
 }

@@ -47,6 +47,10 @@ public class MainWindow extends JFrame {
 		getContentPane().remove(splitLayout);
 	}
 	
+	public void output(String msg) {
+		outputPanel.appendMsg(msg, MESSAGE_TYPE.RULES);
+	}
+	
 	public void output(String msg, MESSAGE_TYPE type) {
 		outputPanel.appendMsg(msg, type);
 	}

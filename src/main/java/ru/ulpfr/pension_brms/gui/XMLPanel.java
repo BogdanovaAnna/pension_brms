@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
+import ru.ulpfr.pension_brms.managers.DroolsManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
 
@@ -71,7 +72,7 @@ public class XMLPanel extends JPanel {
 					READER_STATUS status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
 					updateStatus(status);
 					if (status == READER_STATUS.SUCCESS) {
-						//InputDataManager.getInstance().execute()
+						DroolsManager.getInstance().execute();
 					}
 					
 				}

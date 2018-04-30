@@ -1,0 +1,165 @@
+
+package ru.ulpfr.pension_brms;
+
+//list any import classes here.
+import ru.ulpfr.pension_brms.gui.MainWindow;
+import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
+import ru.ulpfr.pension_brms.model.Client;
+import ru.ulpfr.pension_brms.model.Client.GENDER;
+import ru.ulpfr.pension_brms.model.Client.NATIONALITIES;
+import ru.ulpfr.pension_brms.model.Pension;
+import ru.ulpfr.pension_brms.model.Pension.PENS_STATUS;
+import ru.ulpfr.pension_brms.model.Pension.PENS_TYPE;
+import ru.ulpfr.pension_brms.model.Right;
+import ru.ulpfr.pension_brms.model.Right.RIGHT_TYPES;
+import ru.ulpfr.pension_brms.model.Constants;
+import ru.ulpfr.pension_brms.model.RightError;
+import ru.ulpfr.pension_brms.model.RightError.ERROR_TYPES;
+
+//declare any global variables here
+
+
+
+
+rule "1. Право на страховую пенсию имеют граждане Российской Федерации"
+    when
+        $c: Client( nationality == NATIONALITIES.RUSSIA )
+    then
+    	System.out.println("rule 1 worked");
+        insert(new Right($c.getId(), RIGHT_TYPES.NATIONALITY)); 
+
+end
+
+rule "2. Право на страховую пенсию по старости имеют мужчины, достигшие возраста 60 лет"
+    when
+        $c: Client(gender  == GENDER.MALE, age >= Constants.getConstantNumValue("Min_Age_Male"))
+    then
+    	System.out.println("rule 2 worked");
+        insert(new Right($c.getId(), RIGHT_TYPES.AGE));
+        
+
+end
+
+rule "3. Право на страховую пенсию по старости имеют женщины, достигшие возраста 55 лет"
+    when
+        $c: Client(gender  == GENDER.FEMALE, age >= Constants.getConstantNumValue("Min_Age_Female"))
+    then
+    	System.out.println("rule 3 worked");
+        insert(new Right($c.getId(), RIGHT_TYPES.AGE));
+
+end
+
+rule "4. Страховая пенсия по старости назначается при наличии не менее XX лет страхового стажа"
+    when
+         $c: Client(workExperience  >= Constants.getConstantNumValue("Min_Stag"))
+    then
+    	System.out.println("rule 4 worked");
+        insert(new Right($c.getId(), RIGHT_TYPES.MIN_EXP));
+
+end
+
+rule "5. Страховая пенсия по старости назначается при наличии величины индивидуального пенсионного коэффициента в размере не менее XX"
+   when
+         $c: Client(IPK   >= Constants.getConstantNumValue("Min_IPK"))
+    then
+    	System.out.println("rule 5 worked");
+        insert(new Right($c.getId(), RIGHT_TYPES.MIN_IPK));
+
+end
+
+rule "6. Проверка, положена ли гражданину страxовая пенсия по всем обязательным критериям "
+   when
+         $c: Client($id: id)
+         $p: Pension( clientId  == $id, pensType == PENS_TYPE.Old_age, status == PENS_STATUS.NA) 
+         Right( clientId == $id,  type == RIGHT_TYPES.NATIONALITY)
+         Right( clientId == $id,  type == RIGHT_TYPES.AGE)
+         Right( clientId == $id,  type == RIGHT_TYPES.MIN_EXP)
+         Right( clientId == $id,  type == RIGHT_TYPES.MIN_IPK)   
+    then
+         modify($p) {
+         	setStatus(PENS_STATUS.ASSIGNED),
+         	setAmount($c.getIPK()* $c.getIPKcost())
+         };
+end
+
+rule "7. Отменить страxовой пенсию, если не удовлетворяются все критерии "
+   when
+         Client($id: id)
+         $p: Pension( clientId  == $id, pensType == PENS_TYPE.Old_age, status == PENS_STATUS.NA )
+         not Right( clientId == $id,  type == RIGHT_TYPES.NATIONALITY) or
+         not Right( clientId == $id,  type == RIGHT_TYPES.AGE) or
+         not Right( clientId == $id,  type == RIGHT_TYPES.MIN_EXP) or
+         not Right( clientId == $id,  type == RIGHT_TYPES.MIN_IPK)
+            
+    then
+         modify($p) {
+         	setStatus(PENS_STATUS.REJECTED),
+         	setAmount(0F)
+         };
+         
+         MainWindow.getInstance().output("Размер пенсии равен ="+$p.getAmount());        
+end
+
+rule "8. Отказ в страxовой пенсии по старости не гражданам РФ"
+    when
+        $c: Client( $id:id, nationality != NATIONALITIES.RUSSIA)
+        $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
+    then
+    	System.out.println("rule 8 worked"); 
+        insert(new RightError(Constants.getConstantValue("ERR_1"),ERROR_TYPES.PENS_AGE, $id)); 
+end
+
+rule "9.1 Отказ в страxовой пенсии по старости по возрасту"
+    when
+        Client( $id:id, gender  == GENDER.MALE, age < Constants.getConstantNumValue("Min_Age_Male")) 
+        Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
+    then
+    	System.out.println("rule 9.1 worked"); 
+        insert(new RightError(Constants.getConstantValue("ERR_2"),ERROR_TYPES.PENS_AGE, $id)); 
+end
+
+rule "9.2 Отказ в страxовой пенсии по старости по возрасту"
+    when
+        Client( $id:id, gender == GENDER.FEMALE, age < Constants.getConstantNumValue("Min_Age_Female")) 
+        Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
+    then
+    	System.out.println("rule 9.2 worked"); 
+        insert(new RightError(Constants.getConstantValue("ERR_2"),ERROR_TYPES.PENS_AGE, $id)); 
+end
+
+rule "10. Отказ в страxовой пенсии из-за недостаточного страxового стажа"
+    when
+        $c: Client( $id:id, workExperience  < Constants.getConstantNumValue("Min_Stag"))
+        $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
+    then
+    	System.out.println("rule 10 worked"); 
+        insert(new RightError(Constants.getConstantValue("ERR_3"),ERROR_TYPES.PENS_AGE, $id)); 
+end
+
+rule "11. Отказ в страxовой пенсии из-за недостаточного количества баллов"
+    when
+        $c: Client( $id:id, workExperience  < Constants.getConstantNumValue("Min_Stag"))
+        $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
+    then
+    	System.out.println("rule 11 worked"); 
+        insert(new RightError(Constants.getConstantValue("ERR_4"),ERROR_TYPES.PENS_AGE, $id)); 
+end
+
+rule "12. Вывод ошибок при назначении страxовой пенсии по старости"
+    when
+        Client( $id:id)
+        $e: RightError( clientId == $id, errorCode == ERROR_TYPES.PENS_AGE)
+    then
+    	MainWindow.getInstance().output("Отказ: "+$e.getErrorMessage());
+         
+end
+
+rule "13. Вывод cообщения об успешном назначенной пенсии"
+    when
+        Client( $id:id)
+        $p: Pension( clientId == $id, status == PENS_STATUS.ASSIGNED )
+    then
+    	MainWindow.getInstance().output("Гражданину положена страxовая пенсия по старости!");
+        MainWindow.getInstance().output("Размер пенсии равен ="+$p.getAmount());
+         
+end
