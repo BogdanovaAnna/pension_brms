@@ -51,11 +51,12 @@ public class InputDataManager {
 			if (xml_vars != null) {
 					if(validate_xml) {
 						List<String> errors = ValidationManager.getInstance().validateXML(xml_vars, json_vars);
-						if(errors.size() == 0)
-							return READER_STATUS.SUCCESS;
-						MainWindow.getInstance().output(errors, MESSAGE_TYPE.ERROR);
-						return READER_STATUS.INVALID_DATA;
-					} else
+						if(errors.size() != 0) {
+							MainWindow.getInstance().output(errors, MESSAGE_TYPE.ERROR);
+							return READER_STATUS.INVALID_DATA;
+						}	
+					} 
+					MainWindow.getInstance().output("Файл "+fl.getName()+" успешно обработан", MESSAGE_TYPE.SYSTEM);
 					return READER_STATUS.SUCCESS;
 			} else
 				return READER_STATUS.INVALID_TAG_STRUCTURE;

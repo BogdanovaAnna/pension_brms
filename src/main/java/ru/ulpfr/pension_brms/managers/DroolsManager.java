@@ -5,9 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.kie.api.KieBase;
 import org.kie.api.KieServices;
-import org.kie.api.runtime.KieContainer;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderFactory;
+import org.kie.internal.io.ResourceFactory;
 
 import ru.ulpfr.pension_brms.gui.MainWindow;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
@@ -26,17 +31,6 @@ public class DroolsManager {
 			instance = new DroolsManager();
 		}
 		return instance;
-	}
-	
-	private void initSession() {
-		try {
-			//загрузка базы знаний и создание проверочной сессии
-	        KieServices ks = KieServices.Factory.get();
-		    KieContainer kContainer = ks.getKieClasspathContainer();
-	    	kSession = kContainer.newKieSession("pens_session");
-		}  catch (Throwable t) {
-            t.printStackTrace();
-        }
 	}
 	
 	private void initFacts()  {
@@ -97,8 +91,33 @@ public class DroolsManager {
 				kSession.insert(fact);
 			}
 			kSession.fireAllRules();
+			MainWindow.getInstance().output("<<----Процесс обработки фактов запущен---->>", MESSAGE_TYPE.INFO);
 		}
 	}
+	
+	private void initSession() {
+		try {
+			MainWindow.getInstance().output("Инициализация Rules Engine", MESSAGE_TYPE.SYSTEM);
+			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+			KieSessionConfiguration config = KieServices.Factory.get().newKieSessionConfiguration();
+			kbuilder.add( ResourceFactory.newClassPathResource( "rules/pens_rules.drl", getClass() ), ResourceType.DRL );
+			//kbuilder.add( ResourceFactory.newClassPathResource("dsl/pens_rules.dsl", getClass() ), ResourceType.DSL );
+			if ( kbuilder.hasErrors() ) {
+				MainWindow.getInstance().output("Не удалось скомпилировать правила", MESSAGE_TYPE.ERROR);
+				MainWindow.getInstance().output(kbuilder.getErrors().toString(), MESSAGE_TYPE.ERROR);
+			} else {
+				MainWindow.getInstance().output("Правила успешно скомпилированы", MESSAGE_TYPE.SYSTEM);
+			}
+				
+			KieBase kBase = kbuilder.newKieBase();
+		    kSession = kBase.newKieSession(config, null);	
+		} catch (Throwable t) {
+            t.printStackTrace();
+            MainWindow.getInstance().output(t.getClass().toString() +" :: "+t.getMessage(), MESSAGE_TYPE.ERROR);
+        }
+		
+	}
+	
 	
 	public void execute() {
 		try {

@@ -4,6 +4,9 @@
     <kbase name="rules" packages="rules">
         <ksession name="pens_session" type="stateful"/>
     </kbase>
+    <kbase name="dsl_rules" packages="dsl">
+        <ksession name="dsl_session" type="stateful"/>
+    </kbase>
     <kbase name="dtables" packages="dtables">
         <ksession name="ksession-dtables"/>
     </kbase>
