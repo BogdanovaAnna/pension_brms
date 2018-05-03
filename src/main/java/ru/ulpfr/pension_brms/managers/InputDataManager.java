@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class InputDataManager {
 			if(is == null)
 				return;
 			Gson gson = new Gson();
-			InputStreamReader isr = new InputStreamReader(is);
+			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			BufferedReader br = new BufferedReader(isr);
 			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
 			MainWindow.getInstance().output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);

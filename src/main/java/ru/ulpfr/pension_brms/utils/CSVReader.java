@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class CSVReader {
 	public CSVReader(String resource) {
 		try {
 			InputStream is = CSVReader.class.getResourceAsStream(resource);
-			InputStreamReader isr = new InputStreamReader(is);
+			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			String lineStr;
 		    BufferedReader br = new BufferedReader(isr); 
 	    	while ((lineStr = br.readLine()) != null) {
