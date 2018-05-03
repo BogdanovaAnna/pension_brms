@@ -94,6 +94,7 @@ public class OutputPanel extends JPanel {
 			break;
 		}
 		appendToPane("["+ type+"] :: " + msg, _color);
+		textArea.repaint();
 	}
 	
 	

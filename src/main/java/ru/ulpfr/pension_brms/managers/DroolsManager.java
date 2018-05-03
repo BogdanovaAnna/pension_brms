@@ -23,8 +23,14 @@ import ru.ulpfr.pension_brms.utils.ClientBuilder;
 public class DroolsManager {
 	
 	private KieSession kSession;
+	private KnowledgeBuilder kbuilder;
+	private KieSessionConfiguration config;
 	private List<Object> facts;
 	private static DroolsManager instance;
+	
+	public DroolsManager () {
+		initEngine();
+	}
 	
 	public static synchronized DroolsManager getInstance() {
 		if (instance == null) {
@@ -33,8 +39,8 @@ public class DroolsManager {
 		return instance;
 	}
 	
-	private void initFacts()  {
-		
+	//Создаем факты
+	private void initFacts()  {	
 		facts = new ArrayList<>();
 		List<XmlBlock> clients = InputDataManager.getInstance().getXmlClients();
 		for (Iterator<XmlBlock> iterator = clients.iterator(); iterator.hasNext();) {
@@ -73,7 +79,7 @@ public class DroolsManager {
 						break;
 					}
 				} catch (Exception e) {
-					MainWindow.getInstance().output(e.getClass().getName() + " : "+ e.getMessage(), MESSAGE_TYPE.ERROR);
+					MainWindow.getInstance().output(e.getClass().getName() + " : "+ e.getMessage() + " in variable "+entry.getKey(), MESSAGE_TYPE.ERROR);
 					facts = null;
 					return;
 				}
@@ -85,32 +91,34 @@ public class DroolsManager {
 		}
 	}
 	
+	//Добавляем факты в RE и запускаем отработку правил
 	private void fireRules() {
 		if(kSession !=null && facts != null && facts.size() > 0) {
 			for (Object fact : facts) {
 				kSession.insert(fact);
 			}
-			kSession.fireAllRules();
 			MainWindow.getInstance().output("<<----Процесс обработки фактов запущен---->>", MESSAGE_TYPE.INFO);
+			kSession.fireAllRules();
 		}
 	}
 	
-	private void initSession() {
+	//Инициализация Rules Engine и проверка текущей базы знаний
+	private void initEngine() {
 		try {
 			MainWindow.getInstance().output("Инициализация Rules Engine", MESSAGE_TYPE.SYSTEM);
-			KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-			KieSessionConfiguration config = KieServices.Factory.get().newKieSessionConfiguration();
-			kbuilder.add( ResourceFactory.newClassPathResource( "rules/pens_rules.drl", getClass() ), ResourceType.DRL );
-			//kbuilder.add( ResourceFactory.newClassPathResource("dsl/pens_rules.dsl", getClass() ), ResourceType.DSL );
+			kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+			config = KieServices.Factory.get().newKieSessionConfiguration();
+			
+			//kbuilder.add( ResourceFactory.newClassPathResource( "rules/pens_rules.drl", getClass() ), ResourceType.DRL );
+			kbuilder.add( ResourceFactory.newClassPathResource( "dsl/pens_rules.dsl", getClass()), ResourceType.DSL );
+			kbuilder.add(ResourceFactory.newClassPathResource( "dsl/pens_rules.dslr", getClass()), ResourceType.DSLR );
 			if ( kbuilder.hasErrors() ) {
+				System.out.println(kbuilder.getErrors().toString());
 				MainWindow.getInstance().output("Не удалось скомпилировать правила", MESSAGE_TYPE.ERROR);
 				MainWindow.getInstance().output(kbuilder.getErrors().toString(), MESSAGE_TYPE.ERROR);
 			} else {
 				MainWindow.getInstance().output("Правила успешно скомпилированы", MESSAGE_TYPE.SYSTEM);
-			}
-				
-			KieBase kBase = kbuilder.newKieBase();
-		    kSession = kBase.newKieSession(config, null);	
+			}	
 		} catch (Throwable t) {
             t.printStackTrace();
             MainWindow.getInstance().output(t.getClass().toString() +" :: "+t.getMessage(), MESSAGE_TYPE.ERROR);
@@ -118,7 +126,14 @@ public class DroolsManager {
 		
 	}
 	
-	
+	//создание новой сессии для каждой загруженной XML
+	private void initSession() {
+		if(kbuilder.hasErrors())
+			return;
+		KieBase kBase = kbuilder.newKieBase();
+	    kSession = kBase.newKieSession(config, null);
+	}
+
 	public void execute() {
 		try {
 			initSession();
@@ -127,6 +142,7 @@ public class DroolsManager {
 			
 	    } catch (Throwable t) {
 	        t.printStackTrace();
+	        MainWindow.getInstance().output(t.getClass().toString() +" :: "+t.getMessage(), MESSAGE_TYPE.ERROR);
 	    } 
 	}
 }

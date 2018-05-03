@@ -3,17 +3,14 @@ package ru.ulpfr.pension_brms;
 
 import ru.ulpfr.pension_brms.gui.MainWindow;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
-import ru.ulpfr.pension_brms.model.Client;
+import ru.ulpfr.pension_brms.model.*;
 import ru.ulpfr.pension_brms.model.Client.GENDER;
 import ru.ulpfr.pension_brms.model.Client.NATIONALITIES;
-import ru.ulpfr.pension_brms.model.Pension;
 import ru.ulpfr.pension_brms.model.Pension.PENS_STATUS;
 import ru.ulpfr.pension_brms.model.Pension.PENS_TYPE;
-import ru.ulpfr.pension_brms.model.Right;
 import ru.ulpfr.pension_brms.model.Right.RIGHT_TYPES;
-import ru.ulpfr.pension_brms.model.Constants;
-import ru.ulpfr.pension_brms.model.RightError;
 import ru.ulpfr.pension_brms.model.RightError.ERROR_TYPES;
+
 
 
 rule "1. Право на страховую пенсию имеют граждане Российской Федерации"
@@ -31,8 +28,7 @@ rule "2. Право на страховую пенсию по старости �
     then
     	System.out.println("rule 2 worked");
         insert(new Right($c.getId(), RIGHT_TYPES.AGE));
-        
-
+      
 end
 
 rule "3. Право на страховую пенсию по старости имеют женщины, достигшие возраста 55 лет"
@@ -55,7 +51,7 @@ end
 
 rule "5. Страховая пенсия по старости назначается при наличии величины индивидуального пенсионного коэффициента в размере не менее XX"
    when
-         $c: Client(IPK   >= Constants.getConstantNumValue("Min_IPK"))
+         $c: Client(IPK   >= Constants.getConstantFloatValue("Min_IPK"))
     then
     	System.out.println("rule 5 worked");
         insert(new Right($c.getId(), RIGHT_TYPES.MIN_IPK));
@@ -131,7 +127,7 @@ end
 
 rule "11. Отказ в страxовой пенсии из-за недостаточного количества баллов"
     when
-        $c: Client( $id:id, workExperience  < Constants.getConstantNumValue("Min_Stag"))
+        $c: Client( $id:id, IPK < Constants.getConstantFloatValue("Min_IPK"))
         $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 11 worked"); 

@@ -65,18 +65,17 @@ public class XMLPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				btn.setEnabled(false);
 				int returnValue = fch.showDialog(null, "Выбрать");
+				READER_STATUS status = READER_STATUS.INVALID_DATA;
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fch.getSelectedFile();
 					txtField.setText(selectedFile.getAbsolutePath());
-					
-					READER_STATUS status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
+					status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
 					updateStatus(status);
-					if (status == READER_STATUS.SUCCESS) {
-						DroolsManager.getInstance().execute();
-					}
-					
 				}
 				btn.setEnabled(true);
+				if (status == READER_STATUS.SUCCESS) {
+					DroolsManager.getInstance().execute();
+				}
 				
 			}
 		});	

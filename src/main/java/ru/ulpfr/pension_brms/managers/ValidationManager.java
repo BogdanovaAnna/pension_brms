@@ -17,7 +17,6 @@ public class ValidationManager {
 	
 
 	public ValidationManager() {
-		errors = new ArrayList<String>();
 	}
 	
 	public static synchronized ValidationManager getInstance() {
@@ -28,20 +27,20 @@ public class ValidationManager {
 	}
 	
 	public List<String> validateXML( List<XmlBlock> data, List<InputVariable> config) {
-		for (InputVariable param : config) {
-			for (XmlBlock obj : data) {
+		errors = new ArrayList<String>();
+		for (XmlBlock obj : data) {
+			for (InputVariable param : config) {
 				String tag_name = param.getName();
 				if(obj.checkTag(tag_name)) {
-					checkType(param, obj.getValue(tag_name));
-					checkAllowedValues(param.getValues(), obj.getValue(tag_name));
+					checkType(param, obj.getValue(tag_name), tag_name);
+					checkAllowedValues(param.getValues(), obj.getValue(tag_name), tag_name);
 				}
 			}
 		}
-		return errors;
-		
+		return errors;	
 	}
 	
-	private void checkType(InputVariable param, String value) {
+	private void checkType(InputVariable param, String value, String tag) {
 		String allowed_type = param.getType();
 		switch (allowed_type.trim()) {
 		case "int": 
@@ -49,7 +48,7 @@ public class ValidationManager {
 			try {
 				Integer.valueOf(value);
 			} catch (NumberFormatException e){
-				errors.add(ValidationErrors.INCORRECT_TYPE + " : ["+value+"] as "+allowed_type);
+				errors.add(ValidationErrors.INCORRECT_TYPE + " : "+tag+" = "+value+" типа "+value.getClass().getSimpleName()+" вместо "+allowed_type);
 			}
 			
 			break;
@@ -58,7 +57,7 @@ public class ValidationManager {
 			try {
 				Float.valueOf(value);
 			} catch (NumberFormatException e){
-				errors.add(ValidationErrors.INCORRECT_TYPE + " : ["+value+"] as "+allowed_type);
+				errors.add(ValidationErrors.INCORRECT_TYPE + " : "+tag+" = "+value+" типа "+value.getClass().getSimpleName()+" вместо "+allowed_type);
 			}
 			break;
 		case "date": 
@@ -66,17 +65,17 @@ public class ValidationManager {
 			    SimpleDateFormat sdf = new SimpleDateFormat(param.getFormat());
 			    Date date = sdf.parse(value);
 			    if (!value.equals(sdf.format(date))) {
-			    	errors.add(ValidationErrors.INCORRECT_TYPE + " : ["+value+"] as "+allowed_type);
+			    	errors.add(ValidationErrors.INCORRECT_TYPE + " : "+tag+" = "+value+" не является "+allowed_type);
 			    }
 			} catch (ParseException ex) {
-				errors.add(ValidationErrors.INCORRECT_DATE_FORMAT + " : ["+value+"] as "+param.getFormat());
+				errors.add(ValidationErrors.INCORRECT_DATE_FORMAT + " : "+tag+" = "+value+" не по шаблону "+param.getFormat());
 			}
 			break;
 		}
 		
 	}
 	
-	private void checkAllowedValues(List<String> valArr, String value) {
+	private void checkAllowedValues(List<String> valArr, String value, String tag) {
 		if(valArr ==null)
 			return;
 		Boolean matched = false;
@@ -86,7 +85,7 @@ public class ValidationManager {
 		}
 		
 		if(!matched)
-			errors.add(ValidationErrors.IN_ALLOWED_VALUES + " : ["+value+"] in "+valArr.toString());
+			errors.add(ValidationErrors.IN_ALLOWED_VALUES + " : "+tag+" = "+value+" вместо "+valArr.toString());
 	}
 
 }

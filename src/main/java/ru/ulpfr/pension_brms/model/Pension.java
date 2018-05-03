@@ -24,11 +24,11 @@ public class Pension {
 		this.status = PENS_STATUS.NA;
 	}
 
-	public int getpensType() {
+	public int getPensType() {
 		return pensType;
 	}
 
-	public void setpensType(int id) {
+	public void setPensType(int id) {
 		this.pensType = id;
 	}
 
@@ -54,6 +54,12 @@ public class Pension {
 
 	public void setAmount(Float amount) {
 		this.amount = amount;
+	}
+	public void setAmount(Integer amount) {
+		this.amount = Float.valueOf(amount);
+	}
+	public void setAmount(double amount) {
+		this.amount = (float)amount;
 	}
 	
 	

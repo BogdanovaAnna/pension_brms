@@ -41,6 +41,16 @@ public class Constants {
 		}
 	}
 	
+	public static Float getConstantFloatValue(String name) {
+		String value = getConstantValue(name);
+		try {
+			return Float.valueOf(value);
+		} catch (Exception e) {
+			return 0F;
+		}
+	}
+	
+	
 	public static List<Constant>  getConstants() {
 			return constants;
 	}
