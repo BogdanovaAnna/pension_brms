@@ -4,7 +4,7 @@
 
   <groupId>ru.ulpfr</groupId>
   <artifactId>pension_brms</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>kjar</packaging>
 
   <name>pension_brms</name>
@@ -72,6 +72,30 @@
         <version>${drools-version}</version>
         <extensions>true</extensions>
       </plugin>
+      
+      <plugin>
+	    <artifactId>maven-assembly-plugin</artifactId>
+	    <executions>
+	      <execution>
+	        <phase>package</phase>
+	        <goals>
+	          <goal>single</goal>
+	        </goals>
+	      </execution>
+	    </executions>
+	    <configuration>
+	      <archive>
+	        <manifest>
+	          <addClasspath>true</addClasspath>
+	          <mainClass>ru.ulpfr.pension_brms.Application</mainClass>
+	        </manifest>
+	      </archive>
+	      <descriptorRefs>
+	        <descriptorRef>jar-with-dependencies</descriptorRef>
+	      </descriptorRefs>
+	    </configuration>
+	  </plugin> 
+      
     </plugins>
 
   </build>

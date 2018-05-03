@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.core.io.impl.ClassPathResource;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
@@ -108,10 +109,9 @@ public class DroolsManager {
 			MainWindow.getInstance().output("Инициализация Rules Engine", MESSAGE_TYPE.SYSTEM);
 			kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 			config = KieServices.Factory.get().newKieSessionConfiguration();
-			
-			//kbuilder.add( ResourceFactory.newClassPathResource( "rules/pens_rules.drl", getClass() ), ResourceType.DRL );
-			kbuilder.add( ResourceFactory.newClassPathResource( "dsl/pens_rules.dsl", getClass()), ResourceType.DSL );
-			kbuilder.add(ResourceFactory.newClassPathResource( "dsl/pens_rules.dslr", getClass()), ResourceType.DSLR );
+			//kbuilder.add(new ClassPathResource("rules/pens_rules.drl"), ResourceType.DRL);
+			kbuilder.add(new ClassPathResource("dsl/pens_rules.dsl"), ResourceType.DSL);
+			kbuilder.add(new ClassPathResource("dsl/pens_rules.dslr"), ResourceType.DSLR);
 			if ( kbuilder.hasErrors() ) {
 				System.out.println(kbuilder.getErrors().toString());
 				MainWindow.getInstance().output("Не удалось скомпилировать правила", MESSAGE_TYPE.ERROR);

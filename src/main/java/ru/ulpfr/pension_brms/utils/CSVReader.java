@@ -1,24 +1,28 @@
 package ru.ulpfr.pension_brms.utils;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.ulpfr.pension_brms.gui.MainWindow;
+import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
+
 public class CSVReader {
 	
-	private URL csvUrl;
 	private  List<String> line;
 	private ArrayList<List<String>> csv_table = new ArrayList<List<String>>();
 	private static final char DEFAULT_SEPARATOR = ';';
     private static final char DEFAULT_QUOTE = '"';
 	
 	public CSVReader(String resource) {
-		csvUrl = CSVReader.class.getClassLoader().getResource(resource);
-	    String lineStr = "";
-	    try (BufferedReader br = new BufferedReader(new FileReader(csvUrl.getPath()))) {
+		try {
+			InputStream is = CSVReader.class.getResourceAsStream(resource);
+			InputStreamReader isr = new InputStreamReader(is);
+			String lineStr;
+		    BufferedReader br = new BufferedReader(isr); 
 	    	while ((lineStr = br.readLine()) != null) {
 	    		line = parseLine(lineStr);
 	    		csv_table.add(line);
@@ -26,7 +30,8 @@ public class CSVReader {
 
 	        }
 	    } catch (IOException e) {
-	            e.printStackTrace();
+	    	MainWindow.getInstance().output(resource+ " not loaded: "+e.getMessage(), MESSAGE_TYPE.ERROR);
+	        e.printStackTrace();
 	    }
 
 	}

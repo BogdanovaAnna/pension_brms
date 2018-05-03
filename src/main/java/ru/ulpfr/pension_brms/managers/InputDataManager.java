@@ -2,14 +2,12 @@ package ru.ulpfr.pension_brms.managers;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import ru.ulpfr.pension_brms.gui.MainWindow;
@@ -67,25 +65,23 @@ public class InputDataManager {
 	}
 	
 	public void parseInputVarsJSON() {
-		String path = this.getClass().getClassLoader().getResource("configs/input_vars.json").getFile();
-		Gson gson = new Gson();
-		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader(path));
+			InputStream is = InputDataManager.class.getResourceAsStream("/configs/input_vars.json");
+			if(is == null)
+				return;
+			Gson gson = new Gson();
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
 			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
 			MainWindow.getInstance().output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (JsonIOException e) {
-	        e.printStackTrace();
-	    } catch (JsonSyntaxException e) {
-	        e.printStackTrace();
-	    }
+		} 
 	}
 	
 	public void parseConstantsCSV () {
 		try {
-			CSVReader reader = new CSVReader("configs/constants.csv");
+			CSVReader reader = new CSVReader("/configs/constants.csv");
 			ArrayList<List<String>> dataTable = reader.getLoadedData();
 			for (List<String> line : dataTable) {
 				String desc = (line.size() < 3) ? "": line.get(2);		
@@ -93,7 +89,8 @@ public class InputDataManager {
 			}
 			MainWindow.getInstance().output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (Exception e) {
-			MainWindow.getInstance().output("Файл constants.csv не загружен. "+e.getMessage(), MESSAGE_TYPE.ERROR);
+			e.printStackTrace();
+			MainWindow.getInstance().output("Файл constants.csv не загружен. "+e.getClass().toString() + " : "+e.getMessage(), MESSAGE_TYPE.ERROR);
 		}
 		
 	}

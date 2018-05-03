@@ -17,8 +17,8 @@ public class Application {
 			@Override
 			public void run() {
 				//Инициируем конфигурационные файлы приложения
-				InputDataManager.getInstance().parseInputVarsJSON();
 				InputDataManager.getInstance().parseConstantsCSV();
+				InputDataManager.getInstance().parseInputVarsJSON();
 				
 				BasicConfigurator.configure();
 				
