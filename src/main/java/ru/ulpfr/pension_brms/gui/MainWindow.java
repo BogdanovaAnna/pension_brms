@@ -19,8 +19,8 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static MainWindow instance;
 	
-	public XMLPanel topPanel;
-	public OutputPanel outputPanel;
+	private XMLPanel topPanel;
+	private OutputPanel outputPanel;
 	private JSplitPane splitLayout;
 
 	public MainWindow() throws HeadlessException {
@@ -47,15 +47,15 @@ public class MainWindow extends JFrame {
 		getContentPane().remove(splitLayout);
 	}
 	
-	public void output(String msg) {
-		outputPanel.appendMsg(msg, MESSAGE_TYPE.RULES);
+	public static void output(String msg) {
+		MainWindow.getInstance().outputPanel.appendMsg(msg, MESSAGE_TYPE.RULES);
 	}
 	
-	public void output(String msg, MESSAGE_TYPE type) {
-		outputPanel.appendMsg(msg, type);
+	public static void output(String msg, MESSAGE_TYPE type) {
+		MainWindow.getInstance().outputPanel.appendMsg(msg, type);
 	}
 	
-	public void output(List<String> list, MESSAGE_TYPE type) {
+	public static void output(List<String> list, MESSAGE_TYPE type) {
 		for (String error : list) {
 			output(error, type);
 		}

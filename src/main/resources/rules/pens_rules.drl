@@ -139,7 +139,7 @@ rule "12. Вывод ошибок при назначении страxовой 
         Client( $id:id)
         $e: RightError( clientId == $id, errorCode == ERROR_TYPES.PENS_AGE)
     then
-    	MainWindow.getInstance().output("Отказ для гражданина ["+$id+"]: "+$e.getErrorMessage());
+    	MainWindow.output("Отказ для гражданина ["+$id+"]: "+$e.getErrorMessage());
          
 end
 
@@ -148,7 +148,7 @@ rule "13. Вывод cообщения об успешном назначенн�
         Client( $id:id)
         $p: Pension( clientId == $id, status == PENS_STATUS.ASSIGNED )
     then
-    	MainWindow.getInstance().output("Гражданину ["+$id+"] положена страxовая пенсия по старости!");
-        MainWindow.getInstance().output("Размер пенсии равен = "+$p.getAmount());
+    	MainWindow.output("Гражданину ["+$id+"] положена страxовая пенсия по старости!");
+        MainWindow.output("Размер пенсии равен = "+$p.getAmount());
          
 end

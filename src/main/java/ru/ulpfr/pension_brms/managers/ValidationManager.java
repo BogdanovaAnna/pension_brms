@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import ru.ulpfr.pension_brms.model.InputVariable;
 import ru.ulpfr.pension_brms.model.ValidationErrors;
@@ -29,13 +31,26 @@ public class ValidationManager {
 	public List<String> validateXML( List<XmlBlock> data, List<InputVariable> config) {
 		errors = new ArrayList<String>();
 		for (XmlBlock obj : data) {
+			Map<String, String> tags = obj.getTags();
+			for(Map.Entry<String, String> entry : tags.entrySet()) {
+				List<InputVariable> result =config.stream().filter(item -> item.getName().equals(entry.getKey())).collect(Collectors.toList());
+				if(result.size() < 1) {
+					errors.add(ValidationErrors.PARAM_NOT_FOUNDED + " "+entry.getKey());
+				} else {
+					InputVariable last = result.get(result.size() - 1);
+					checkType(last, entry.getValue(), last.getName());
+					checkAllowedValues(last.getValues(), entry.getValue(), last.getName());
+				}
+					
+			}
+			
 			for (InputVariable param : config) {
 				String tag_name = param.getName();
 				if(obj.checkTag(tag_name)) {
-					checkType(param, obj.getValue(tag_name), tag_name);
-					checkAllowedValues(param.getValues(), obj.getValue(tag_name), tag_name);
+					
 				}
 			}
+				
 		}
 		return errors;	
 	}

@@ -15,6 +15,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -48,6 +49,12 @@ public class XMLPanel extends JPanel {
 	}
 	
 	private void initFileChooser() {
+		UIManager.put("FileChooser.cancelButtonText", "Отмена");
+		UIManager.put("FileChooser.openButtonText", "Выбрать");
+		UIManager.put("FileChooser.lookInLabelText", "Директория");
+		UIManager.put("FileChooser.fileNameLabelText", "Имя файла");
+		UIManager.put("FileChooser.filesOfTypeLabelText", "Типы файлов");
+
 		fch = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		fch.setDialogTitle("Выберите файл: ");
 		fch.setMultiSelectionEnabled(false);
@@ -55,6 +62,7 @@ public class XMLPanel extends JPanel {
 		fch.setAcceptAllFileFilterUsed(false);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Xml файлы (*.xml)", "xml");
 		fch.addChoosableFileFilter(filter);
+		
 	}
 	
 	private void initFileButton() {
@@ -64,7 +72,7 @@ public class XMLPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				btn.setEnabled(false);
-				int returnValue = fch.showDialog(null, "Выбрать");
+				int returnValue = fch.showOpenDialog(btn);
 				READER_STATUS status = READER_STATUS.INVALID_DATA;
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = fch.getSelectedFile();

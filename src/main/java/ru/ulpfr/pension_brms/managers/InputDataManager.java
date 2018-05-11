@@ -51,11 +51,11 @@ public class InputDataManager {
 					if(validate_xml) {
 						List<String> errors = ValidationManager.getInstance().validateXML(xml_vars, json_vars);
 						if(errors.size() != 0) {
-							MainWindow.getInstance().output(errors, MESSAGE_TYPE.ERROR);
+							MainWindow.output(errors, MESSAGE_TYPE.ERROR);
 							return READER_STATUS.INVALID_DATA;
 						}	
 					} 
-					MainWindow.getInstance().output("Файл "+fl.getName()+" успешно обработан", MESSAGE_TYPE.SYSTEM);
+					MainWindow.output("Файл "+fl.getName()+" успешно обработан", MESSAGE_TYPE.SYSTEM);
 					return READER_STATUS.SUCCESS;
 			} else
 				return READER_STATUS.INVALID_TAG_STRUCTURE;
@@ -74,7 +74,7 @@ public class InputDataManager {
 			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			BufferedReader br = new BufferedReader(isr);
 			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
-			MainWindow.getInstance().output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
+			MainWindow.output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -85,13 +85,15 @@ public class InputDataManager {
 			CSVReader reader = new CSVReader("/configs/constants.csv");
 			ArrayList<List<String>> dataTable = reader.getLoadedData();
 			for (List<String> line : dataTable) {
+				if(line.size() < 2)
+					throw new Exception("Неверный формат содержимого - нет значений, разделенныx через ; в строке: "+line);
 				String desc = (line.size() < 3) ? "": line.get(2);		
 				Constants.addConstant(new Constant(line.get(0), line.get(1), desc));
 			}
-			MainWindow.getInstance().output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
+			MainWindow.output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (Exception e) {
 			e.printStackTrace();
-			MainWindow.getInstance().output("Файл constants.csv не загружен. "+e.getClass().toString() + " : "+e.getMessage(), MESSAGE_TYPE.ERROR);
+			MainWindow.output("Файл constants.csv не загружен. "+e.getClass().getSimpleName().toString() + " : "+e.getMessage(), MESSAGE_TYPE.ERROR);
 		}
 		
 	}

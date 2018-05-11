@@ -31,7 +31,7 @@ public class CSVReader {
 
 	        }
 	    } catch (IOException e) {
-	    	MainWindow.getInstance().output(resource+ " not loaded: "+e.getMessage(), MESSAGE_TYPE.ERROR);
+	    	MainWindow.output(resource+ " not loaded: "+e.getMessage(), MESSAGE_TYPE.ERROR);
 	        e.printStackTrace();
 	    }
 

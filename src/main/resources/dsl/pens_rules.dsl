@@ -1,4 +1,4 @@
-#/ debug display result
+//#/ debug display result
 [keyword]Подключить связанные классы=import ru.ulpfr.pension_brms.gui.MainWindow;import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;import ru.ulpfr.pension_brms.model.*;import ru.ulpfr.pension_brms.model.Client.GENDER;import ru.ulpfr.pension_brms.model.Client.NATIONALITIES;import ru.ulpfr.pension_brms.model.Pension.PENS_STATUS;import ru.ulpfr.pension_brms.model.Pension.PENS_TYPE;import ru.ulpfr.pension_brms.model.Right.RIGHT_TYPES;import ru.ulpfr.pension_brms.model.RightError.ERROR_TYPES;
 [keyword]Отключить цикличность=no-loop true
 
@@ -49,7 +49,7 @@
 [consequence]Добавить ошибку права на страховую пенсию по старости с формулировкой "{const_err}"=insert(new RightError(Constants.getConstantValue("{const_err}"),ERROR_TYPES.PENS_AGE, $c.getId())); 
 
 //Выxодные сообщения
-[consequence]Вывод: {message}=MainWindow.getInstance().output({message});
+[consequence]Вывод: {message}=MainWindow.output({message});
 [consequence]сообщение о причине отказа="Отказ для клиента #"+$id+": "+$e.getErrorMessage()
 [consequence]сообщение о назначенной пенсии="Клиенту #"+$id+" положена страxовая пенсия по старости."+System.lineSeparator()+"Размер пенсии равен = " + $p.getAmount()+ " руб."
 

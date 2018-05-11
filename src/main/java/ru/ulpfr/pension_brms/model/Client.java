@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -83,6 +84,8 @@ public class Client implements Serializable {
     }
     
     public Object setProperty(String key, Object value) {
+    	if(props == null)
+    		props = new HashMap<String, Object>();
         return this.props.put(key, value);
     }
 
