@@ -1,9 +1,9 @@
 package ru.ulpfr.pension_brms.managers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.core.io.impl.ClassPathResource;
-
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
@@ -13,8 +13,10 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 
 import ru.ulpfr.pension_brms.gui.MainWindow;
+import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 import ru.ulpfr.pension_brms.listeners.TrackingAgendaEventListener;
+import ru.ulpfr.pension_brms.utils.ClientBuilder;
 import ru.ulpfr.pension_brms.utils.FactsBuilder;
 
 public class DroolsManager {
@@ -96,7 +98,7 @@ public class DroolsManager {
 	}
 	
 	//Создаем факты на основе XML-данныx
-	private void initFacts()  {	
+	private void initFactsFromXML()  {	
 		if(kSession != null) {	
 			FactsBuilder fbuilder = new FactsBuilder();
 			facts = fbuilder.build();
@@ -117,11 +119,21 @@ public class DroolsManager {
 	}
 
 	//запуск процесса обработки правил
-	public void execute() {
+	public void execute( TABS mode) {
 		try {
 			initSession();
 			setListeners();
-			initFacts();
+			switch (mode) {
+			case XML:
+				initFactsFromXML();
+				break;
+
+			case RUNTIME:
+				facts = new ArrayList<Object>();
+				facts.add(new ClientBuilder().build());
+				break;
+			}
+			
 			fireRules();
 			//MainWindow.output(agendaEventListener.matchsToString(), MESSAGE_TYPE.INFO); //вывод отработанныx правил	
 		} catch (Throwable t) {

@@ -19,6 +19,7 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
+import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
 import ru.ulpfr.pension_brms.managers.DroolsManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
@@ -82,7 +83,7 @@ public class XMLPanel extends JPanel {
 				}
 				btn.setEnabled(true);
 				if (status == READER_STATUS.SUCCESS) {
-					DroolsManager.getInstance().execute();
+					DroolsManager.getInstance().execute(TABS.XML);
 				}
 				
 			}

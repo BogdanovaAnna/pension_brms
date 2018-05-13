@@ -40,7 +40,7 @@ public class OutputPanel extends JPanel {
 	private void setupTextPane() {
 		textArea = new JTextPane();
 		textArea.setBorder(new EmptyBorder(new Insets(10, 10, 10, 10)));
-		textArea.setPreferredSize(new Dimension(445, 445));
+		textArea.setPreferredSize(new Dimension(445, 430));
 		textArea.addFocusListener(new FocusListener() {		
 			@Override
 			public void focusLost(FocusEvent e) {

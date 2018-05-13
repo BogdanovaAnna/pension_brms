@@ -112,7 +112,9 @@ public class Client implements Serializable {
 	}
 
 	public float getIPK() {
-		return IPK;
+		if(IPK != null)
+			return IPK;
+		return 0;
 	}
 
 	public void setIPK(float ipk) {

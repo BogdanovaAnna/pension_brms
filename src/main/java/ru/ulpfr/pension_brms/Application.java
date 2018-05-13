@@ -1,6 +1,7 @@
 package ru.ulpfr.pension_brms;
 
 import ru.ulpfr.pension_brms.gui.MainWindow;
+import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
 import ru.ulpfr.pension_brms.managers.InputDataManager;
 
 import javax.swing.SwingUtilities;
@@ -20,11 +21,12 @@ public class Application {
 				InputDataManager.getInstance().parseConstantsCSV();
 				InputDataManager.getInstance().parseInputVarsJSON();
 				
+				//Активация Логера log4j2
 				BasicConfigurator.configure();
 				
-				// создаём и отображаем главное окно приложения
+				//Создаём главное окно приложения
 				MainWindow window = MainWindow.getInstance();
-				window.showPanels();
+				window.setActiveTab(TABS.XML);
 			}
 		});
 		

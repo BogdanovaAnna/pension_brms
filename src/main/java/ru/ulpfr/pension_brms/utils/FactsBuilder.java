@@ -22,6 +22,8 @@ public class FactsBuilder {
 	
 	private void createFacts() {
 		List<XmlBlock> clients = InputDataManager.getInstance().getXmlClients();
+		if(clients == null)
+			return;
 		
 		for (Iterator<XmlBlock> iterator = clients.iterator(); iterator.hasNext();) {
 			XmlBlock xmlBlock = (XmlBlock) iterator.next();
