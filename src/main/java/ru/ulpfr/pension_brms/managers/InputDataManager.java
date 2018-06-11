@@ -30,7 +30,8 @@ public class InputDataManager {
 	private List<XmlBlock> xml_vars; //параметры из загруженной XML
 	private List<InputVariable> json_vars; //параметры из input_vars.json
 	
-	public enum READER_STATUS { SUCCESS, ERROR_SINTAX, INVALID_DATA, INVALID_TAG_STRUCTURE}
+	public enum READER_STATUS { SUCCESS, INIT, ERROR_SINTAX, INVALID_DATA, INVALID_TAG_STRUCTURE}
+	private Boolean allReady = true;
 	
 	public InputDataManager() {
 		xmlFR = new XmlFileReader();
@@ -55,7 +56,6 @@ public class InputDataManager {
 							return READER_STATUS.INVALID_DATA;
 						}	
 					} 
-					MainWindow.output("Файл "+fl.getName()+" успешно обработан", MESSAGE_TYPE.SYSTEM);
 					return READER_STATUS.SUCCESS;
 			} else
 				return READER_STATUS.INVALID_TAG_STRUCTURE;
@@ -75,8 +75,11 @@ public class InputDataManager {
 			BufferedReader br = new BufferedReader(isr);
 			json_vars = gson.fromJson(br, new TypeToken<List<InputVariable>>(){}.getType());
 			MainWindow.output("Файл input_vars.json успешно обработан", MESSAGE_TYPE.SYSTEM);
+			setReady(true);
 		} catch (Exception e) {
 			e.printStackTrace();
+			this.setReady(false);
+			MainWindow.output("Файл input_vars.json не загружен. "+e.getClass().getSimpleName().toString() + " : "+e.getMessage(), MESSAGE_TYPE.ERROR);
 		} 
 	}
 	
@@ -93,6 +96,7 @@ public class InputDataManager {
 			MainWindow.output("Файл constants.csv успешно обработан", MESSAGE_TYPE.SYSTEM);
 		} catch (Exception e) {
 			e.printStackTrace();
+			this.setReady(false);
 			MainWindow.output("Файл constants.csv не загружен. "+e.getClass().getSimpleName().toString() + " : "+e.getMessage(), MESSAGE_TYPE.ERROR);
 		}
 		
@@ -110,6 +114,20 @@ public class InputDataManager {
 	
 	public List<XmlBlock> getXmlClients() {
 		return xml_vars;
+	}
+	
+	public void setReady(Boolean val) {
+		allReady = val;
+		System.out.println("setReady = "+ val);
+		if(getReady()) { //все конфигурационные файлы скачались - сообщаем, что всё готово
+			MainWindow.getInstance().sayReady();
+		} else {
+			MainWindow.getInstance().sayNotReady();
+		}
+	}
+	
+	public Boolean getReady() {
+		return allReady;
 	}
 
 }

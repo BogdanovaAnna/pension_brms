@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -15,6 +16,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
+import ru.ulpfr.pension_brms.listeners.MainWindowReadyListener;
+import ru.ulpfr.pension_brms.managers.InputDataManager;
 
 public class MainWindow extends JFrame {
 
@@ -28,6 +31,28 @@ public class MainWindow extends JFrame {
 	private TabWindowXML xmlPanel;
 	private TabWindowRuntime rtPanel;
 	
+	private List<MainWindowReadyListener> listeners = new ArrayList<MainWindowReadyListener>();
+
+    public void addListener(MainWindowReadyListener toAdd) {
+        listeners.add(toAdd);
+    }
+
+    public void sayReady() {
+        System.out.println("Main window is ready");
+        if(!listeners.isEmpty()) {
+        	for (MainWindowReadyListener rl : listeners)
+                rl.windowReady();
+        }
+    }
+    
+    public void sayNotReady() {
+        System.out.println("Main window is not ready");
+        if(!listeners.isEmpty()) {
+	        for (MainWindowReadyListener rl : listeners)
+	            rl.windowNotReady();
+        }
+    }
+	
 	public enum TABS {
 		XML,
 		RUNTIME
@@ -39,8 +64,8 @@ public class MainWindow extends JFrame {
 		setTitle("Calculation of pension");	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //чтобы процесс приложения завершался после закрытия окна
 		setSize(500, 700); //размер окна по дефолту
-		initListeners();
 		createTabs();
+		initListeners();
 		setVisible(true); // отображаем окно
 	}
 	
@@ -53,7 +78,7 @@ public class MainWindow extends JFrame {
 		jtp.setBackground(new Color(191, 191, 191));
 		jtp.setBorder(null);
 		jtp.add(xmlPanel);
-		jtp.add( rtPanel);;
+		jtp.add(rtPanel);;
 		
 		jtp.setTabComponentAt(0, getTitleLabel("XML"));
 		jtp.setTabComponentAt(1, getTitleLabel("Runtime"));
@@ -81,7 +106,6 @@ public class MainWindow extends JFrame {
 	}
 	
 	
-	
 	public static void output(String msg) {
 		if(MainWindow.getInstance().jtp.getSelectedIndex() == 0)
 			MainWindow.getInstance().xmlPanel.getOutput().appendMsg(msg, MESSAGE_TYPE.RULES);
@@ -105,6 +129,14 @@ public class MainWindow extends JFrame {
 		return instance;
 	}
 	
+	public Boolean showRules() {
+		Boolean result = false;
+		if( jtp.getSelectedComponent() == xmlPanel) {
+			result = xmlPanel.getShowExecutedRules();
+		}
+		return result;
+	}
+	
 	private void initListeners() {
 		this.addWindowListener(new WindowAdapter() {
 			 public void windowClosing(WindowEvent e) {
@@ -113,7 +145,8 @@ public class MainWindow extends JFrame {
 	            }
 			 public void windowOpened(WindowEvent e) {
 	                System.out.println("Window Opened");
-	            }
+	           }
 		});
+		addListener(xmlPanel);
 	}
 }

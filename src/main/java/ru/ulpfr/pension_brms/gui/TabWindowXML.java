@@ -5,7 +5,10 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-public class TabWindowXML extends JPanel {
+import ru.ulpfr.pension_brms.listeners.MainWindowReadyListener;
+import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
+
+public class TabWindowXML extends JPanel implements MainWindowReadyListener {
 	
 	private static final long serialVersionUID = 1L;
 	private XMLPanel topPanel;
@@ -36,6 +39,21 @@ public class TabWindowXML extends JPanel {
 	public OutputPanel getOutput() {
 		return outputPanel;
 	}
+	
+	public Boolean getShowExecutedRules() {
+		return topPanel.showExecutedRules();
+	}
 
-
+	@Override
+	public void windowReady() {
+		System.out.println("You may load xml file");
+		topPanel.setEnable(true);
+		topPanel.updateStatus(READER_STATUS.INIT);
+	}
+	
+	@Override
+	public void windowNotReady() {
+		System.out.println("You can't load xml file");
+		topPanel.setEnable(false);
+	}
 }

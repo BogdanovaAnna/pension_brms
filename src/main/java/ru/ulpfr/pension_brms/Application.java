@@ -17,16 +17,16 @@ public class Application {
 			
 			@Override
 			public void run() {
-				//Инициируем конфигурационные файлы приложения
-				InputDataManager.getInstance().parseConstantsCSV();
-				InputDataManager.getInstance().parseInputVarsJSON();
-				
-				//Активация Логера log4j2
-				BasicConfigurator.configure();
-				
 				//Создаём главное окно приложения
 				MainWindow window = MainWindow.getInstance();
 				window.setActiveTab(TABS.XML);
+				
+				//Инициируем конфигурационные файлы приложения
+				InputDataManager.getInstance().parseConstantsCSV();
+				InputDataManager.getInstance().parseInputVarsJSON();
+
+				//Активация Логера log4j2
+				BasicConfigurator.configure();
 			}
 		});
 		

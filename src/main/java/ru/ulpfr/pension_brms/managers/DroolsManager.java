@@ -135,7 +135,10 @@ public class DroolsManager {
 			}
 			
 			fireRules();
-			//MainWindow.output(agendaEventListener.matchsToString(), MESSAGE_TYPE.INFO); //вывод отработанныx правил	
+			
+			if(MainWindow.getInstance().showRules())
+				MainWindow.output(agendaEventListener.matchsToString(), MESSAGE_TYPE.INFO); //вывод отработанныx правил	
+			
 		} catch (Throwable t) {
 			t.printStackTrace();
 			MainWindow.output(t.getClass().toString() +" :: "+t.getMessage(), MESSAGE_TYPE.ERROR);

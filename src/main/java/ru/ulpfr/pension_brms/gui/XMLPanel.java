@@ -1,9 +1,7 @@
 package ru.ulpfr.pension_brms.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,6 +18,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
+import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 import ru.ulpfr.pension_brms.managers.DroolsManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
@@ -32,21 +31,21 @@ public class XMLPanel extends JPanel {
 	private static final long serialVersionUID = -2482425422212218523L;
 	private JFileChooser fch;
 	private JButton btn;
-	private JTextField txtField, statusLabel;
-	private JCheckBox validateFile;
-	private Box topBox, middleBox, bottomBox;
+	private JTextField txtField;
+	private JCheckBox validateFile, showExecutedRules;
+	private Box topBox, bottomBox;
+	private File selectedFile;
 
 	public XMLPanel() {
 		setBorder(BorderFactory.createTitledBorder("Выберете XML-файл для обработки"));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		setPreferredSize(new Dimension(460, 120));
+		setPreferredSize(new Dimension(460, 100));
 		initFileChooser();
 		initPathText();
-		initCheckBoxOption();
-		initStatusText();
+		initCheckBoxOptions();
 		initFileButton();
 		initBoxes();
-		addComponents();	
+		addComponents();
 	}
 	
 	private void initFileChooser() {
@@ -76,7 +75,7 @@ public class XMLPanel extends JPanel {
 				int returnValue = fch.showOpenDialog(btn);
 				READER_STATUS status = READER_STATUS.INVALID_DATA;
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = fch.getSelectedFile();
+					selectedFile = fch.getSelectedFile();
 					txtField.setText(selectedFile.getAbsolutePath());
 					status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
 					updateStatus(status);
@@ -90,9 +89,11 @@ public class XMLPanel extends JPanel {
 		});	
 	}
 	
-	private void initCheckBoxOption() {
+	private void initCheckBoxOptions() {
 		validateFile = new JCheckBox("Валидация xml");
 		validateFile.setSelected(true);
+		showExecutedRules = new JCheckBox("Отображать выполненные правила");
+		showExecutedRules.setSelected(true);
 	}
 	
 	private void initPathText() {
@@ -101,43 +102,29 @@ public class XMLPanel extends JPanel {
 		txtField.setEditable(false);
 	}
 	
-	private void initStatusText() {
-		statusLabel = new JTextField();
-		statusLabel.setPreferredSize(new Dimension(420, 22));
-		Font font = new Font("Courier", Font.BOLD,13);
-		statusLabel.setFont(font);
-		statusLabel.setBackground(new Color(229, 236, 255));
-		statusLabel.setEditable(false);
-		updateStatus("файл не выбран");
-	}
-	
 	private void initBoxes() {
 		topBox = Box.createHorizontalBox();
-		middleBox = Box.createHorizontalBox();
-		bottomBox = Box.createVerticalBox();
+		bottomBox = Box.createHorizontalBox();
 		topBox.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-		middleBox.setBorder(BorderFactory.createEmptyBorder(0, 315, 0, 0));
-		bottomBox.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		bottomBox.setBorder(BorderFactory.createEmptyBorder(5, 60, 0, 0));
 		topBox.add(btn);
 		topBox.add(txtField);
-		middleBox.add(validateFile);
-		bottomBox.add(statusLabel);
-		
+		bottomBox.add(showExecutedRules);
+		bottomBox.add(Box.createRigidArea(new Dimension(20,0)));
+		bottomBox.add(validateFile);
 	}
 	
 	public void addComponents() {
 		this.add(topBox);
-		this.add(middleBox);
 		this.add(bottomBox);
 	}
 	
-	public void updateStatus(String str) {
-		if( statusLabel != null ) {
-			statusLabel.setText("Статус: "+ str);
-		}
+	public void updateStatus(READER_STATUS status, Object data) {
+		updateStatus(status);
 	}
+	
 	public void updateStatus(READER_STATUS status) {
-		String str = "файл успешно загружен!";
+		String str = "";
 		switch (status) {
 		case ERROR_SINTAX:
 			str = "не выполнено. Присутствуют ошибки синтаксиса в файле";
@@ -148,16 +135,31 @@ public class XMLPanel extends JPanel {
 		case INVALID_TAG_STRUCTURE:
 			str = "не выполнено. В структуре xml нет блока clients/client";
 			break;
+		case SUCCESS:
+			str = "Файл " + selectedFile.getName() +" успешно загружен!";
+			break;
+		case INIT:
+			str = "Выберете XML-файл...";
+			break;
 		default:
+			str = "Непонятный апдейт статуса";
 			break;
 		}
-		updateStatus(str);
+		MainWindow.output(str,MESSAGE_TYPE.INFO);
 	}
 	
 	public void reset() {
-		updateStatus("файл не выбран");
+		updateStatus(READER_STATUS.INIT);
 		txtField.setText("");
 		btn.setEnabled(true);
+	}
+	
+	public void setEnable(Boolean enabled) {
+		btn.setEnabled(enabled);
+	}
+	
+	public Boolean showExecutedRules() {
+		return showExecutedRules.isSelected();
 	}
 
 }
