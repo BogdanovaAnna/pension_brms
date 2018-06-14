@@ -1,4 +1,4 @@
-package ru.ulpfr.pension_brms.model;
+package ru.ulpfr.pension_brms.model.rules;
 
 public class RightError {
 	

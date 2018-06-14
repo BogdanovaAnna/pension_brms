@@ -4,12 +4,12 @@ package ru.ulpfr.pension_brms;
 import ru.ulpfr.pension_brms.gui.MainWindow;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 import ru.ulpfr.pension_brms.model.*;
-import ru.ulpfr.pension_brms.model.Client.GENDER;
-import ru.ulpfr.pension_brms.model.Client.NATIONALITIES;
-import ru.ulpfr.pension_brms.model.Pension.PENS_STATUS;
-import ru.ulpfr.pension_brms.model.Pension.PENS_TYPE;
-import ru.ulpfr.pension_brms.model.Right.RIGHT_TYPES;
-import ru.ulpfr.pension_brms.model.RightError.ERROR_TYPES;
+import ru.ulpfr.pension_brms.model.rules.*;
+import ru.ulpfr.pension_brms.model.rules.Client.GENDER;
+import ru.ulpfr.pension_brms.model.rules.Client.NATIONALITIES;
+import ru.ulpfr.pension_brms.model.rules.Pension.PENS_STATUS;
+import ru.ulpfr.pension_brms.model.rules.Pension.PENS_TYPE;
+import ru.ulpfr.pension_brms.model.rules.RightError.ERROR_TYPES;
 
 
 
@@ -18,7 +18,7 @@ rule "1. Право на страховую пенсию имеют гражда
         $c: Client( nationality == NATIONALITIES.RUSSIA )
     then
     	System.out.println("rule 1 worked");
-        insert(new Right($c.getId(), RIGHT_TYPES.NATIONALITY)); 
+        insert(new Right($c.getClientId(), RightTypes.NATIONALITY)); 
 
 end
 
@@ -27,7 +27,7 @@ rule "2. Право на страховую пенсию по старости �
         $c: Client(gender  == GENDER.MALE, age >= Constants.getConstantNumValue("Min_Age_Male"))
     then
     	System.out.println("rule 2 worked");
-        insert(new Right($c.getId(), RIGHT_TYPES.AGE));
+        insert(new Right($c.getClientId(), RightTypes.AGE));
       
 end
 
@@ -36,7 +36,7 @@ rule "3. Право на страховую пенсию по старости �
         $c: Client(gender  == GENDER.FEMALE, age >= Constants.getConstantNumValue("Min_Age_Female"))
     then
     	System.out.println("rule 3 worked");
-        insert(new Right($c.getId(), RIGHT_TYPES.AGE));
+        insert(new Right($c.getClientId(), RightTypes.AGE));
 
 end
 
@@ -45,7 +45,7 @@ rule "4. Страховая пенсия по старости назначае�
          $c: Client(workExperience  >= Constants.getConstantNumValue("Min_Stag"))
     then
     	System.out.println("rule 4 worked");
-        insert(new Right($c.getId(), RIGHT_TYPES.MIN_EXP));
+        insert(new Right($c.getClientId(), RightTypes.MIN_EXP));
 
 end
 
@@ -54,18 +54,18 @@ rule "5. Страховая пенсия по старости назначае�
          $c: Client(IPK   >= Constants.getConstantFloatValue("Min_IPK"))
     then
     	System.out.println("rule 5 worked");
-        insert(new Right($c.getId(), RIGHT_TYPES.MIN_IPK));
+        insert(new Right($c.getClientId(), RightTypes.MIN_IPK));
 
 end
 
 rule "6. Проверка, положена ли гражданину страxовая пенсия по всем обязательным критериям "
    when
-         $c: Client($id: id)
+         $c: Client($id: clientId)
          $p: Pension( clientId  == $id, pensType == PENS_TYPE.Old_age, status == PENS_STATUS.NA) 
-         Right( clientId == $id,  type == RIGHT_TYPES.NATIONALITY)
-         Right( clientId == $id,  type == RIGHT_TYPES.AGE)
-         Right( clientId == $id,  type == RIGHT_TYPES.MIN_EXP)
-         Right( clientId == $id,  type == RIGHT_TYPES.MIN_IPK)   
+         Right( clientId == $id,  type == RightTypes.NATIONALITY)
+         Right( clientId == $id,  type == RightTypes.AGE)
+         Right( clientId == $id,  type == RightTypes.MIN_EXP)
+         Right( clientId == $id,  type == RightTypes.MIN_IPK)   
     then
          modify($p) {
          	setStatus(PENS_STATUS.ASSIGNED),
@@ -75,12 +75,12 @@ end
 
 rule "7. Отменить страxовой пенсию, если не удовлетворяются все критерии "
    when
-         Client($id: id)
+         Client($id: clientId)
          $p: Pension( clientId  == $id, pensType == PENS_TYPE.Old_age, status == PENS_STATUS.NA )
-         not Right( clientId == $id,  type == RIGHT_TYPES.NATIONALITY) or
-         not Right( clientId == $id,  type == RIGHT_TYPES.AGE) or
-         not Right( clientId == $id,  type == RIGHT_TYPES.MIN_EXP) or
-         not Right( clientId == $id,  type == RIGHT_TYPES.MIN_IPK)
+         not Right( clientId == $id,  type == RightTypes.NATIONALITY) or
+         not Right( clientId == $id,  type == RightTypes.AGE) or
+         not Right( clientId == $id,  type == RightTypes.MIN_EXP) or
+         not Right( clientId == $id,  type == RightTypes.MIN_IPK)
             
     then
          modify($p) {
@@ -91,7 +91,7 @@ end
 
 rule "8. Отказ в страxовой пенсии по старости не гражданам РФ"
     when
-        $c: Client( $id:id, nationality != NATIONALITIES.RUSSIA)
+        $c: Client( $id:clientId, nationality != NATIONALITIES.RUSSIA)
         $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 8 worked"); 
@@ -100,7 +100,7 @@ end
 
 rule "9.1 Отказ в страxовой пенсии по старости по возрасту"
     when
-        Client( $id:id, gender  == GENDER.MALE, age < Constants.getConstantNumValue("Min_Age_Male")) 
+        Client( $id:clientId, gender  == GENDER.MALE, age < Constants.getConstantNumValue("Min_Age_Male")) 
         Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 9.1 worked"); 
@@ -109,7 +109,7 @@ end
 
 rule "9.2 Отказ в страxовой пенсии по старости по возрасту"
     when
-        Client( $id:id, gender == GENDER.FEMALE, age < Constants.getConstantNumValue("Min_Age_Female")) 
+        Client( $id:clientId, gender == GENDER.FEMALE, age < Constants.getConstantNumValue("Min_Age_Female")) 
         Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 9.2 worked"); 
@@ -118,7 +118,7 @@ end
 
 rule "10. Отказ в страxовой пенсии из-за недостаточного страxового стажа"
     when
-        $c: Client( $id:id, workExperience  < Constants.getConstantNumValue("Min_Stag"))
+        $c: Client( $id:clientId, workExperience  < Constants.getConstantNumValue("Min_Stag"))
         $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 10 worked"); 
@@ -127,16 +127,16 @@ end
 
 rule "11. Отказ в страxовой пенсии из-за недостаточного количества баллов"
     when
-        $c: Client( $id:id, IPK < Constants.getConstantFloatValue("Min_IPK"))
+        $c: Client( $id:clientId, IPK < Constants.getConstantFloatValue("Min_IPK"))
         $p: Pension( clientId == $id, pensType == PENS_TYPE.Old_age)
     then
     	System.out.println("rule 11 worked"); 
         insert(new RightError(Constants.getConstantValue("ERR_4"),ERROR_TYPES.PENS_AGE, $id)); 
 end
 
-rule "12. Вывод ошибок при назначении страxовой пенсии по старости"
+rule "12. Вывод ошибки при назначении страxовой пенсии по старости"
     when
-        Client( $id:id)
+        Client( $id:clientId)
         $e: RightError( clientId == $id, errorCode == ERROR_TYPES.PENS_AGE)
     then
     	MainWindow.output("Отказ для гражданина ["+$id+"]: "+$e.getErrorMessage());
@@ -145,7 +145,7 @@ end
 
 rule "13. Вывод cообщения об успешном назначенной пенсии"
     when
-        Client( $id:id)
+        Client( $id:clientId)
         $p: Pension( clientId == $id, status == PENS_STATUS.ASSIGNED )
     then
     	MainWindow.output("Гражданину ["+$id+"] положена страxовая пенсия по старости!");

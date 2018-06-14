@@ -27,16 +27,16 @@ public class DroolsManager {
 	private TrackingAgendaEventListener agendaEventListener;
 	private List<Object> facts;
 	private static DroolsManager instance;
+	private static RULES_TYPES rules_mode;
 	
 	//Типы файловыx ресурсов с правилами для обработки в Rules Engine
-	private enum RULES_TYPES {
+	public enum RULES_TYPES {
 		DRL,
 		DSL,
 		DTABLE
 	}
 	
 	public DroolsManager () {
-		initEngine(RULES_TYPES.DSL);
 	}
 	
 	public static synchronized DroolsManager getInstance() {
@@ -46,6 +46,13 @@ public class DroolsManager {
 		return instance;
 	}
 	
+	public static synchronized DroolsManager init(RULES_TYPES mode) {
+		if(rules_mode != mode) {
+			rules_mode = mode;
+			DroolsManager.getInstance().initEngine(rules_mode);
+		}
+		return DroolsManager.getInstance();
+	}
 		
 	//Инициализация Rules Engine и проверка текущей базы знаний
 	private void initEngine(RULES_TYPES rulesType) {

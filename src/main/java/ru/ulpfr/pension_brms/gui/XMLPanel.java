@@ -17,9 +17,9 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
-import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
-import ru.ulpfr.pension_brms.managers.DroolsManager;
+import ru.ulpfr.pension_brms.managers.DroolsManager.RULES_TYPES;
+import ru.ulpfr.pension_brms.managers.ApplicationManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager;
 import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
 
@@ -32,7 +32,7 @@ public class XMLPanel extends JPanel {
 	private JFileChooser fch;
 	private JButton btn;
 	private JTextField txtField;
-	private JCheckBox validateFile, showExecutedRules;
+	private JCheckBox showExecutedRules, dslMode;
 	private Box topBox, bottomBox;
 	private File selectedFile;
 
@@ -74,26 +74,32 @@ public class XMLPanel extends JPanel {
 				btn.setEnabled(false);
 				int returnValue = fch.showOpenDialog(btn);
 				READER_STATUS status = READER_STATUS.INVALID_DATA;
+				RULES_TYPES mode = dslMode.isSelected() ? RULES_TYPES.DSL : RULES_TYPES.DRL;
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					selectedFile = fch.getSelectedFile();
 					txtField.setText(selectedFile.getAbsolutePath());
-					status = InputDataManager.getInstance().parseXmlFile(selectedFile, validateFile.isSelected());
+					status = InputDataManager.getInstance().parseXmlFile(selectedFile);
 					updateStatus(status);
 				}
-				btn.setEnabled(true);
 				if (status == READER_STATUS.SUCCESS) {
-					DroolsManager.getInstance().execute(TABS.XML);
-				}
-				
+					Thread t = new Thread(new Runnable() {
+                        public void run() {
+                        	ApplicationManager.getInstance().startDrools(mode);
+                        	 btn.setEnabled(true);
+                        }
+                     });
+					t.start();
+				} else  
+					btn.setEnabled(true);
 			}
 		});	
 	}
 	
 	private void initCheckBoxOptions() {
-		validateFile = new JCheckBox("Валидация xml");
-		validateFile.setSelected(true);
-		showExecutedRules = new JCheckBox("Отображать выполненные правила");
+		showExecutedRules = new JCheckBox("Показать выполненные правила");
 		showExecutedRules.setSelected(true);
+		dslMode = new JCheckBox("DSL");
+		dslMode.setSelected(false); // если false - правила будут читаться из DRL файлов
 	}
 	
 	private void initPathText() {
@@ -106,12 +112,12 @@ public class XMLPanel extends JPanel {
 		topBox = Box.createHorizontalBox();
 		bottomBox = Box.createHorizontalBox();
 		topBox.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-		bottomBox.setBorder(BorderFactory.createEmptyBorder(5, 60, 0, 0));
+		bottomBox.setBorder(BorderFactory.createEmptyBorder(5, 150, 0, 0));
 		topBox.add(btn);
 		topBox.add(txtField);
+		bottomBox.add(dslMode);
+		bottomBox.add(Box.createRigidArea(new Dimension(15,0)));
 		bottomBox.add(showExecutedRules);
-		bottomBox.add(Box.createRigidArea(new Dimension(20,0)));
-		bottomBox.add(validateFile);
 	}
 	
 	public void addComponents() {

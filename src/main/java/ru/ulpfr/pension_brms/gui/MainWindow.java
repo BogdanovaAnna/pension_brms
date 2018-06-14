@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -16,8 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
-import ru.ulpfr.pension_brms.listeners.MainWindowReadyListener;
-import ru.ulpfr.pension_brms.managers.InputDataManager;
+import ru.ulpfr.pension_brms.managers.ApplicationManager;
 
 public class MainWindow extends JFrame {
 
@@ -30,28 +28,6 @@ public class MainWindow extends JFrame {
 	private JTabbedPane jtp;
 	private TabWindowXML xmlPanel;
 	private TabWindowRuntime rtPanel;
-	
-	private List<MainWindowReadyListener> listeners = new ArrayList<MainWindowReadyListener>();
-
-    public void addListener(MainWindowReadyListener toAdd) {
-        listeners.add(toAdd);
-    }
-
-    public void sayReady() {
-        System.out.println("Main window is ready");
-        if(!listeners.isEmpty()) {
-        	for (MainWindowReadyListener rl : listeners)
-                rl.windowReady();
-        }
-    }
-    
-    public void sayNotReady() {
-        System.out.println("Main window is not ready");
-        if(!listeners.isEmpty()) {
-	        for (MainWindowReadyListener rl : listeners)
-	            rl.windowNotReady();
-        }
-    }
 	
 	public enum TABS {
 		XML,
@@ -138,8 +114,10 @@ public class MainWindow extends JFrame {
 	}
 	
 	private void initListeners() {
+		ApplicationManager.getInstance().addListener(xmlPanel);
 		this.addWindowListener(new WindowAdapter() {
 			 public void windowClosing(WindowEvent e) {
+				 ApplicationManager.getInstance().removeListener(xmlPanel);
 				 System.out.println("Window Closed");
 	                System.exit(0);
 	            }
@@ -147,6 +125,9 @@ public class MainWindow extends JFrame {
 	                System.out.println("Window Opened");
 	           }
 		});
-		addListener(xmlPanel);
+	}
+	
+	public TabWindowXML getXMLTab() {
+		return xmlPanel;
 	}
 }

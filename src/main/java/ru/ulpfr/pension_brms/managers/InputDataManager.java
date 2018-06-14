@@ -15,27 +15,22 @@ import ru.ulpfr.pension_brms.gui.MainWindow;
 import ru.ulpfr.pension_brms.gui.OutputPanel.MESSAGE_TYPE;
 import ru.ulpfr.pension_brms.model.Constant;
 import ru.ulpfr.pension_brms.model.Constants;
+import ru.ulpfr.pension_brms.model.FactsStore;
 import ru.ulpfr.pension_brms.model.InputVariable;
-import ru.ulpfr.pension_brms.model.XmlBlock;
 import ru.ulpfr.pension_brms.utils.CSVReader;
-import ru.ulpfr.pension_brms.utils.XmlFileReader;
+import ru.ulpfr.pension_brms.utils.JAXBConverter;
 
 public class InputDataManager {
 	/**
 	 * Класс для манипуляций всеми вxодными данными
 	 */
-	private XmlFileReader xmlFR;
 	private static InputDataManager instance;
 	
-	private List<XmlBlock> xml_vars; //параметры из загруженной XML
 	private List<InputVariable> json_vars; //параметры из input_vars.json
+	private FactsStore fstore; // корневой класс объектов из XML
 	
 	public enum READER_STATUS { SUCCESS, INIT, ERROR_SINTAX, INVALID_DATA, INVALID_TAG_STRUCTURE}
 	private Boolean allReady = true;
-	
-	public InputDataManager() {
-		xmlFR = new XmlFileReader();
-	}
 	
 	public static synchronized InputDataManager getInstance() {
 		if (instance == null) {
@@ -44,18 +39,10 @@ public class InputDataManager {
 		return instance;
 	}
 	
-	//Доработать!!!!!!!
-	public READER_STATUS parseXmlFile(File fl , Boolean validate_xml) {
+	public READER_STATUS parseXmlFile(File fl) {
 		try {
-			xml_vars = xmlFR.readFromFile(fl);
-			if (xml_vars != null) {
-					if(validate_xml) {
-						List<String> errors = ValidationManager.getInstance().validateXML(xml_vars, json_vars);
-						if(errors.size() != 0) {
-							MainWindow.output(errors, MESSAGE_TYPE.ERROR);
-							return READER_STATUS.INVALID_DATA;
-						}	
-					} 
+			fstore = new JAXBConverter().unmarshallFacts(fl);
+			if (fstore != null) {
 					return READER_STATUS.SUCCESS;
 			} else
 				return READER_STATUS.INVALID_TAG_STRUCTURE;
@@ -112,17 +99,17 @@ public class InputDataManager {
 		return null;
 	}
 	
-	public List<XmlBlock> getXmlClients() {
-		return xml_vars;
+	public FactsStore getXmlData() {
+		return fstore;
 	}
 	
 	public void setReady(Boolean val) {
 		allReady = val;
 		System.out.println("setReady = "+ val);
 		if(getReady()) { //все конфигурационные файлы скачались - сообщаем, что всё готово
-			MainWindow.getInstance().sayReady();
+			ApplicationManager.getInstance().mainWindowReady();
 		} else {
-			MainWindow.getInstance().sayNotReady();
+			ApplicationManager.getInstance().mainWindowNotReady();
 		}
 	}
 	

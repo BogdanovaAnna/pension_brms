@@ -5,10 +5,13 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import ru.ulpfr.pension_brms.listeners.MainWindowReadyListener;
+import ru.ulpfr.pension_brms.gui.MainWindow.TABS;
+import ru.ulpfr.pension_brms.listeners.GlobalListener;
+import ru.ulpfr.pension_brms.managers.DroolsManager;
+import ru.ulpfr.pension_brms.managers.DroolsManager.RULES_TYPES;
 import ru.ulpfr.pension_brms.managers.InputDataManager.READER_STATUS;
 
-public class TabWindowXML extends JPanel implements MainWindowReadyListener {
+public class TabWindowXML extends JPanel implements GlobalListener {
 	
 	private static final long serialVersionUID = 1L;
 	private XMLPanel topPanel;
@@ -55,5 +58,11 @@ public class TabWindowXML extends JPanel implements MainWindowReadyListener {
 	public void windowNotReady() {
 		System.out.println("You can't load xml file");
 		topPanel.setEnable(false);
+	}
+	
+	@Override
+	public void allowDroolsInit(RULES_TYPES mode) {
+		System.out.println("allowDroolsInit mode ="+mode);
+		DroolsManager.init(mode).execute(TABS.XML);
 	}
 }

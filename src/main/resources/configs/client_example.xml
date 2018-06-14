@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<payload>
+	<name>Facts example</name>
+	<client>
+		<clientId>1</clientId>
+		<nationality>1</nationality>
+		<gender>f</gender>
+		<birthDate>10.05.1945</birthDate>
+		<workExperience>16</workExperience>
+		<IPK>16</IPK>
+		<IPKcost>199.38</IPKcost>
+		<newKoef>10.5</newKoef>
+	</client>
+	<pension>
+		<clientId>1</clientId>
+		<pensType>1</pensType>
+	</pension>
+	<pension>
+		<clientId>2</clientId>
+		<pensType>1</pensType>
+	</pension>
+	<client>
+		<clientId>2</clientId>
+		<nationality>1</nationality>
+		<gender>m</gender>
+		<birthDate>10.05.1985</birthDate>
+		<workExperience>16</workExperience>
+		<IPK>7</IPK>
+		<IPKcost>199.38</IPKcost>
+	</client>
+</payload>

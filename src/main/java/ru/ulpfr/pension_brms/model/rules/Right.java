@@ -1,22 +1,13 @@
-package ru.ulpfr.pension_brms.model;
+package ru.ulpfr.pension_brms.model.rules;
 
-import ru.ulpfr.pension_brms.model.Pension.PENS_TYPE;
+import ru.ulpfr.pension_brms.model.rules.Pension.PENS_TYPE;
 
 public class Right {
-	
 	private static long idCounter;
 	private long rightId;
 	private long clientId;
 	private int pensType;
-	private int type  = RIGHT_TYPES.NONE;
-	
-	public static class RIGHT_TYPES {
-        public static final int NONE = 0;
-        public static final int NATIONALITY = 1;
-        public static final int AGE = 2;
-        public static final int MIN_EXP = 3;
-        public static final int MIN_IPK = 4;
-    }
+	private int type  = RightTypes.NONE;
 
 	public Right(long cl, Integer tp) {
 		this.setClientId(cl);

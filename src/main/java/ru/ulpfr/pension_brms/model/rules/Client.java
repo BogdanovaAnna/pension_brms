@@ -1,6 +1,7 @@
-package ru.ulpfr.pension_brms.model;
+package ru.ulpfr.pension_brms.model.rules;
 
 import java.io.Serializable;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -9,8 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import ru.ulpfr.pension_brms.managers.InputDataManager;
+import javax.xml.bind.annotation.XmlType;
 
+import ru.ulpfr.pension_brms.managers.InputDataManager;
+import ru.ulpfr.pension_brms.model.Constants;
+import ru.ulpfr.pension_brms.model.InputVariable;
+
+@XmlType(name = "client")
 public class Client implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -24,7 +30,7 @@ public class Client implements Serializable {
         public static final String MALE = "m";
     }
 
-    private Long clientId;		//номер в БЗ (ненерируется в ClientBuilder)
+    private Long clientId;		//ид.номер в БЗ
     private String name;		//ФИО 
     private Integer age; 		//возраст в годаx
     private String birthDate; 	// дата рождения
@@ -32,20 +38,15 @@ public class Client implements Serializable {
     private String gender; 		//пол
     private Float IPK; 			//ИПК
     private Float IPK_cost;		//Стоимость ИПК
-    
-    //Стаж работы
-    private Integer work_exp; //полныx лет
+    private Integer work_exp;   //Стаж работы полныx лет
     private List<Object> work_exp_arr; // лет, месяцев, дней
-    
-    
-    //все остальные свойства xранятся здесь
-    private Map<String, Object> props;
-    
-    public Long getId() {
+    private Map<String, Object> props; //универсальное хранилище
+
+    public Long getClientId() {
         return clientId;
     }
 
-    public void setId(Long id) {
+    public void setClientId(Long id) {
         this.clientId = id;
     }
     
@@ -132,7 +133,9 @@ public class Client implements Serializable {
 	}
 
 	public Integer getWorkExperience() {
-		return work_exp;
+		if(work_exp != null)
+			return work_exp;
+		return 0;
 	}
 
 	public void setWorkExperience(Integer work_exp) {

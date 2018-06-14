@@ -3,7 +3,7 @@ package ru.ulpfr.pension_brms.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import ru.ulpfr.pension_brms.model.Client;
+import ru.ulpfr.pension_brms.model.rules.Client;
 
 public class ClientBuilder {
 
@@ -12,11 +12,11 @@ public class ClientBuilder {
     
     public ClientBuilder() {
         instance = new Client();
-        instance.setId(clientIdGenerator++);
+        instance.setClientId(clientIdGenerator++);
     }
     
     public ClientBuilder withId(Long id){
-        instance.setId(id);
+        instance.setClientId(id);
         return this;
     }
     

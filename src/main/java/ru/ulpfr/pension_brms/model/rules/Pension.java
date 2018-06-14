@@ -1,5 +1,8 @@
-package ru.ulpfr.pension_brms.model;
+package ru.ulpfr.pension_brms.model.rules;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(name = "pension")
 public class Pension {
 	public static class PENS_TYPE {
         public static final int Old_age = 1;
@@ -17,11 +20,17 @@ public class Pension {
 	private long clientId; 	//айди гражданина
 	private Float amount; 	//размер пенсии
 	private int status; 	//статус: назначена, не назначена
+	
+	Pension() {
+		this.status = PENS_STATUS.NA;
+		this.amount = 0F;
+	}
 
 	public Pension(long id, Integer type) {
 		this.clientId = id;
 		this.pensType = type;
 		this.status = PENS_STATUS.NA;
+		this.amount = 0F;
 	}
 
 	public int getPensType() {
